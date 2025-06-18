@@ -1,0 +1,6 @@
+ollama 
+langdetect  
+sentence-transformers  
+chromadb  
+flask  
+python-dotenv 
