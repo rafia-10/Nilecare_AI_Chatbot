@@ -1,0 +1,27 @@
+---
+Title: General Health Advice: Balanced Diet
+Content: A balanced diet is fundamental for good health. It should include a variety of fruits, vegetables, whole grains, lean protein sources, and healthy fats. Limiting processed foods, sugary drinks, and excessive saturated/trans fats is also crucial. Aim for five servings of fruits and vegetables daily.
+
+---
+Title: General Health Advice: Regular Exercise
+Content: Regular physical activity is vital. Adults should aim for at least 150 minutes of moderate-intensity aerobic activity or 75 minutes of vigorous-intensity aerobic activity per week, along with muscle-strengthening activities on 2 or more days. Exercise helps improve cardiovascular health, strengthens muscles and bones, boosts mood, and reduces chronic disease risk.
+
+---
+Title: General Health Advice: Adequate Sleep
+Content: Getting 7-9 hours of quality sleep per night is essential for adults. Adequate sleep supports immune function, cognitive performance, mood regulation, and physical recovery. Establish a regular sleep schedule, create a comfortable sleep environment, and avoid caffeine and screens before bed.
+
+---
+Title: Common Symptoms of the Flu
+Content: The flu (influenza) is a contagious respiratory illness. Common symptoms include fever, cough, sore throat, runny or stuffy nose, muscle or body aches, headaches, and fatigue. Vomiting and diarrhea are more common in children than adults. Symptoms usually appear suddenly and can range from mild to severe.
+
+---
+Title: Flu Prevention
+Content: The best way to prevent the flu is to get a flu vaccine annually. Other preventive measures include frequent hand washing with soap and water, avoiding touching your eyes, nose, and mouth, avoiding close contact with sick people, and cleaning and disinfecting frequently touched surfaces.
+
+---
+Title: Basic Stress Management Techniques
+Content: Effective stress management can significantly improve well-being. Techniques include deep breathing exercises, meditation, yoga, mindfulness, regular physical activity, spending time in nature, maintaining social connections, and engaging in hobbies. Identifying and addressing stressors is also important.
+
+---
+Title: Hydration Importance
+Content: Staying hydrated is crucial for overall health. Water helps regulate body temperature, lubricate joints, prevent infections, deliver nutrients to cells, and keep organs functioning properly. Aim to drink adequate water throughout the day, adjusting for activity levels and climate. Dehydration can lead to fatigue, headaches, and dizziness.
