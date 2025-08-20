@@ -1,4 +1,4 @@
-from .llm_interface import OllamaClient # Import our Ollama client
+
 import os
 
 class Chatbot:
@@ -7,7 +7,7 @@ class Chatbot:
         Initializes the main chatbot logic.
         """
         print(f"Initializing Chatbot with LLM model: {model_name}")
-        self.llm_client = OllamaClient(model_name=model_name)
+        self.llm_client = LLMInterface(model_name=model_name)
         self.chat_history = [] 
 
     def process_message(self, user_message: str) -> str:

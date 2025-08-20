@@ -1,29 +1,47 @@
-import ollama
 import os
+import torch
+from transformers import AutoModelForCausalLM, AutoTokenizer, pipeline
 
-class OllamaClient:
-    def __init__(self, model_name: str = "llama3:latest"):
+class LLMInterface:
+    def __init__(self, model_name: str):
         """
-        Initializes the Ollama client with a specific model.
+        Initializes the LLM interface using a Hugging Face transformers model.
         Args:
-            model_name (str): The name of the model to use (e.g., 'llama3:latest').
+            model_name (str): The name of the Hugging Face model to load.
         """
         self.model_name = model_name
+        self.tokenizer = None
+        self.model = None
+        self.pipeline = None
+
+        print(f"Loading Hugging Face model: {self.model_name}")
         try:
-            # Test if the Ollama server is reachable and the model exists
-            # This call might raise an exception if the server is down or model is not found
-            ollama.chat(model=self.model_name, messages=[{'role': 'user', 'content': 'Hi'}], stream=False, options={'num_predict': 1})
-            print(f"Ollama client initialized successfully with model: {self.model_name}")
-        except ollama.ResponseError as e:
-            print(f"Error initializing Ollama client: {e}")
-            print(f"Please ensure Ollama server is running and model '{self.model_name}' is downloaded.")
-            exit(1) # Exit if we can't connect to Ollama
+            # Load the tokenizer and model from Hugging Face Hub.
+            # 'torch_dtype="auto"' selects the best dtype available (e.g., float16 on GPU).
+            # 'device_map="auto"' distributes the model across available devices (GPU/CPU).
+            self.tokenizer = AutoTokenizer.from_pretrained(self.model_name)
+            self.model = AutoModelForCausalLM.from_pretrained(
+                self.model_name,
+                torch_dtype="auto",
+                device_map="auto"
+            )
+            self.pipeline = pipeline(
+                "text-generation",
+                model=self.model,
+                tokenizer=self.tokenizer,
+                max_new_tokens=512
+            )
+            print("Hugging Face model loaded successfully.")
+        except Exception as e:
+            # Provide an informative error message for the user.
+            print(f"Failed to load Hugging Face model {self.model_name}: {e}")
+            raise RuntimeError(f"Failed to load Hugging Face model {self.model_name}: {e}")
 
     def generate_response(self, prompt: str, chat_history: list = None) -> str:
         """
-        Generates a response from the LLM based on the prompt and chat history.
+        Generates a response from the LLM based on a prompt and chat history.
         Args:
-            prompt (str): The user's current input.
+            prompt (str): The user's current prompt, which can include RAG context.
             chat_history (list): A list of dictionaries representing previous messages.
                                   Each dict: {'role': 'user'/'assistant', 'content': 'message'}.
         Returns:
@@ -32,50 +50,60 @@ class OllamaClient:
         if chat_history is None:
             chat_history = []
 
-        # Add the current user prompt to the chat history
+        # Construct the full message list for the LLM, including history and the new prompt.
         messages = chat_history + [{'role': 'user', 'content': prompt}]
 
         try:
-            response = ollama.chat(
-                model=self.model_name,
-                messages=messages,
-                stream=False, 
-                options={'num_predict': 256, 'temperature': 0.6}
+            # The transformers pipeline handles the conversation turn.
+            response = self.pipeline(
+                messages,
+                do_sample=True,
+                temperature=0.7,
+                top_p=0.95,
             )
             
-            return response['message']['content']
-        except ollama.ResponseError as e:
+            # The response is a list of dictionaries. We extract the generated content.
+            generated_text = response[0]['generated_text']
+            
+            # Find the last message content, which is the model's response.
+            # This is robust because the pipeline returns the full conversation history.
+            if isinstance(generated_text, list) and generated_text:
+                return generated_text[-1].get('content', '')
+            else:
+                return str(generated_text)
+                
+        except Exception as e:
             print(f"Error generating response: {e}")
-            return "I'm sorry, I encountered an error while processing your request."
+            return "Sorry, I am unable to generate a response at this time."
 
-# --- Test the OllamaClient ---
+# --- Test the LLMInterface ---
 if __name__ == "__main__":
     
-    from dotenv import load_dotenv
-    load_dotenv() # Load environment variables from .env file
+    model_name = "Qwen/Qwen1.5-1.8B-Chat"
+    
+    print(f"Attempting to connect to Hugging Face with model: {model_name}")
 
-    model_name = os.getenv("OLLAMA_MODEL_NAME", "llama3:latest")
+    try:
+        llm_client = LLMInterface(model_name=model_name)
+    except RuntimeError as e:
+        print(f"Exiting due to initialization error: {e}")
+        exit(1)
 
-    print(f"Attempting to connect to Ollama with model: {model_name}")
-
-    ollama_client = OllamaClient(model_name=model_name)
-
-    if ollama_client:
+    if llm_client:
         print("\n--- Testing Response Generation ---")
         initial_prompt = "Hello, tell me a bit about general health advice."
         print(f"User: {initial_prompt}")
-        response = ollama_client.generate_response(initial_prompt)
+        response = llm_client.generate_response(initial_prompt)
         print(f"Chatbot: {response}")
 
         print("\n--- Testing with a follow-up (simulated chat history) ---")
-        # Simulate a basic chat history
         chat_history = [
             {'role': 'user', 'content': initial_prompt},
             {'role': 'assistant', 'content': response}
         ]
         follow_up_prompt = "What are some common symptoms of the flu?"
         print(f"User: {follow_up_prompt}")
-        response_follow_up = ollama_client.generate_response(follow_up_prompt, chat_history)
+        response_follow_up = llm_client.generate_response(follow_up_prompt, chat_history)
         print(f"Chatbot: {response_follow_up}")
 
     print("\nTest complete.")
